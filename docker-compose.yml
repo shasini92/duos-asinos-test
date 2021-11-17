@@ -1,0 +1,63 @@
+version: '3.5'
+services:
+  # PHP Service
+  duos-asinos-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: duos-asinos-php
+    container_name: duos-asinos-app
+    environment:
+      SERVICE_NAME: duos-asinos-app
+      SERVICE_TAGS: dev
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www:delegated
+      - ./php/php.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - app_network
+
+  # Nginx Service
+  duos-asinos-webserver:
+    image: nginx:alpine
+    container_name: duos-asinos-webserver
+    ports:
+      - '88:80'
+    volumes:
+      - ./:/var/www
+      - ./nginx/:/etc/nginx/conf.d/
+    networks:
+      - app_network
+
+  #MySQL Service
+  duos-asinos-db:
+    # For not Mac M1 chip users set image =>  image: mysql:5.7.22 and remove platform line
+    image: mysql:5.7
+    platform: linux/x86_64
+    container_name: duos-asinos-db
+    ports:
+      - '4410:3306'
+    environment:
+      MYSQL_DATABASE: duos-asinos-test-db
+      MYSQL_ROOT_PASSWORD: 1234567890
+      MYSQL_USER: duos_asinos
+      MYSQL_PASSWORD: 1234567890
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - dbdata:/var/lib/mysql_user
+      - ./docker/db-init.sql:/docker-entrypoint-initdb.d/db-init.sql
+    restart: always
+    networks:
+      - app_network
+
+# Docker Networks
+networks:
+  app_network:
+    name: app_network
+    driver: bridge
+
+# Volumes
+volumes:
+  dbdata:
+    driver: local

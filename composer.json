@@ -1,0 +1,15 @@
+{
+  "name": "sinisamilicic/duos-asinos-test",
+  "authors": [
+    {
+      "name": "Sinisa Milicic",
+      "email": "shasini92@gmail.com"
+    }
+  ],
+  "autoload": {
+    "classmap": [
+      "./"
+    ]
+  },
+  "require": {}
+}
